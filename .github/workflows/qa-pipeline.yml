@@ -28,6 +28,17 @@ jobs:
       - name: Build Docker image
         run: docker build -t shadow-api-ci .
 
+      - name: Scan Docker image with Trivy
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: shadow-api-ci
+          scan-type: image
+          format: table
+          exit-code: "1"
+          ignore-unfixed: false
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
   terraform-check:
     name: Terraform Check
     runs-on: ubuntu-latest
@@ -50,3 +61,8 @@ jobs:
 
       - name: Validate Terraform configuration
         run: terraform validate
+
+      - name: Scan Terraform with tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: terraform
